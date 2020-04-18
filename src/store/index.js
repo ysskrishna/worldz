@@ -41,10 +41,22 @@ export default new Vuex.Store({
       // dispatch("updatePagination", { myJson, currentPage: 1, perPage: 3 });
       // return myJson;
     },
-    async paginate({commit, state}, {currentPage, perPage}){
-      const start = (currentPage - 1)*perPage;
-      const end = currentPage*perPage;
+    async paginate({ commit, state }, { currentPage, perPage }) {
+      const start = (currentPage - 1) * perPage;
+      const end = currentPage * perPage;
       commit("SET_DISPLAY", state.countries.slice(start, end));
+    },
+    async updatePagination({ dispatch, commit }, { countries, currentPage, perPage }) {
+      commit("SET_COUNTRIES", countries);
+      commit("SET_ROWS", countries.length);
+      dispatch("paginate", { currentPage, perPage });
+    },
+    async search({ dispatch}, { text }) {
+      const countries = await dispatch("fetchData");
+      const values = countries.filter(item => {
+        return item.name.toLowerCase().includes(text.toLowerCase())
+      });
+      dispatch("updatePagination", { countries: values, currentPage: 1, perPage: 10 });
     }
   },
   getters: {
