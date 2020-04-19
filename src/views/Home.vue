@@ -1,10 +1,12 @@
 <template>
   <div>
     <b-container>
-      <b-row align-v="center">
+      <b-row align-v="center" align-h="center" class="cardList">
         <CardItem v-for="item in display" :key="item.id" v-bind:item="item" />
       </b-row>
       <b-pagination
+        class="pagination"        
+        align="fill"
         v-model="currentPage"
         :total-rows="rows"
         :per-page="perPage"
@@ -22,6 +24,7 @@
 // @ is an alias to /src
 import CardItem from "../components/CardItem.vue";
 import { mapGetters } from "vuex";
+import { PER_PAGE } from "../constants";
 
 export default {
   name: "Home",
@@ -34,7 +37,7 @@ export default {
   data() {
     return {
       currentPage: 1,
-      perPage: 10
+      perPage: PER_PAGE
     };
   },
   mounted() {
@@ -42,7 +45,7 @@ export default {
   },
   methods: {
     async fetchData() {
-      await this.$store.dispatch("fetchCountries");
+      await this.$store.dispatch("fetchCountries", { perPage: this.perPage });
     },
     async paginate(currentPage) {
       await this.$store.dispatch("paginate", {
@@ -53,3 +56,11 @@ export default {
   }
 };
 </script>
+<style scoped>
+  .cardList {
+    margin-top: 20px;
+  }
+  .pagination {
+    margin-top: 20px;
+  }
+</style>

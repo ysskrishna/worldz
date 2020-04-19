@@ -1,5 +1,22 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <img v-bind:src="image" class="imageStyle">
+    <h1>Tech Enthusiast</h1>
   </div>
 </template>
+
+<script>
+export default {
+  data () {
+  return {
+    image: require('../assets/ysskrishna.jpg')
+  }
+},
+}
+</script>
+<style scoped>
+.imageStyle {
+  max-width: 450px;
+  padding: 20px;
+}
+</style>

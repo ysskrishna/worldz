@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
+import { PER_PAGE } from '../constants'
 
 Vue.use(Vuex)
 
@@ -8,7 +9,8 @@ export default new Vuex.Store({
   state: {
     countries: [],
     display: [],
-    rows: 0
+    rows: 0,
+    loading: false
   },
   mutations: {
     SET_COUNTRIES(state, countries) {
@@ -19,27 +21,34 @@ export default new Vuex.Store({
     },
     SET_DISPLAY(state, display) {
       state.display = display
+    },
+    SET_LOADING(state, loading) {
+      state.loading = loading
     }
   },
   actions: {
-    async fetchData() {
+    async fetchData({ commit }) {
+      commit("SET_LOADING", true)
       return new Promise(resolve => {
         axios
           .get(
             "https://raw.githubusercontent.com/cristiroma/countries/master/data/json/countries.json"
           ).then(res => {
-            resolve(res.data);
+
+            setTimeout(async () => {
+              resolve(res.data);
+              commit("SET_LOADING", false)
+            }, 1000);
+
           })
           .catch(err => console.log(err));
       });
     },
-    async fetchCountries({ dispatch, commit }) {
+    async fetchCountries({ dispatch, commit }, { perPage }) {
       const countries = await dispatch("fetchData");
       commit("SET_COUNTRIES", countries);
       commit("SET_ROWS", countries.length);
-      commit("SET_DISPLAY", countries.slice(0, 10));
-      // dispatch("updatePagination", { myJson, currentPage: 1, perPage: 3 });
-      // return myJson;
+      commit("SET_DISPLAY", countries.slice(0, perPage));
     },
     async paginate({ commit, state }, { currentPage, perPage }) {
       const start = (currentPage - 1) * perPage;
@@ -51,12 +60,12 @@ export default new Vuex.Store({
       commit("SET_ROWS", countries.length);
       dispatch("paginate", { currentPage, perPage });
     },
-    async search({ dispatch}, { text }) {
+    async search({ dispatch }, { text }) {
       const countries = await dispatch("fetchData");
       const values = countries.filter(item => {
         return item.name.toLowerCase().includes(text.toLowerCase())
       });
-      dispatch("updatePagination", { countries: values, currentPage: 1, perPage: 10 });
+      dispatch("updatePagination", { countries: values, currentPage: 1, perPage: PER_PAGE });
     }
   },
   getters: {
@@ -68,6 +77,9 @@ export default new Vuex.Store({
     },
     display(state) {
       return state.display
+    },
+    loading(state) {
+      return state.loading
     }
   },
   modules: {
